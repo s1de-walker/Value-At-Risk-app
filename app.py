@@ -59,7 +59,7 @@ if st.button("Calculate VaR"):
             VaR_value = np.percentile(simulated_returns, 100 - var_percentile) * 100
             
             # Create Interactive Histogram
-            fig = px.histogram(x=simulated_returns, nbins=50, title="Monte Carlo Simulated Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#1f77b4"])
+            fig = px.histogram(x=simulated_returns, nbins=50, title="Monte Carlo Simulated Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
             fig.add_vline(x=VaR_value / 100, line=dict(color="red", width=2, dash="dash"))
             fig.update_layout(xaxis_title="Returns", yaxis_title="Frequency", showlegend=False)
             
