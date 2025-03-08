@@ -13,7 +13,7 @@ st.title("Value at Risk")
 st.write("")
 
 # Sidebar Instructions
-st.sidebar.header("How to Use Inputs")
+st.sidebar.header("➤ How to Use Inputs")
 st.sidebar.write("")
 st.sidebar.write("- **Analysis Period:** If your average holding period is 5 days, you may want to analyze how prices change over 5-day intervals.")
 st.sidebar.write("")
