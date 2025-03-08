@@ -12,6 +12,12 @@ import plotly.express as px
 st.title("Value at Risk")
 st.write("")
 
+# Sidebar Instructions
+st.sidebar.header("How to Use Inputs")
+st.sidebar.write("**Analysis Period:** If your average holding period is 5 days, you may want to analyze how prices change over 5-day intervals.")
+st.sidebar.write("**Monte Carlo Simulations:** More simulations improve accuracy but take longer to compute.")
+st.sidebar.write("**Percentile:** Defines the risk threshold—e.g., the 95th percentile represents a 2-sigma event (unusual but possible losses).")
+
 # User Inputs
 stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
 col1, col2 = st.columns(2)
