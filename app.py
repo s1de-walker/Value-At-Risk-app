@@ -68,7 +68,7 @@ if st.button("Calculate VaR"):
             
             
             # Display VaR
-            st.markdown(f"<h5>VaR {var_percentile:.0f}%: <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{VaR_value:.1f}%</span></h5>", unsafe_allow_html=True)
+            st.markdown(f"<h5>VaR {var_percentile:.1f}: <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{VaR_value:.1f}%</span></h5>", unsafe_allow_html=True)
             
         else:
             st.write("Error fetching data. Please check the stock symbol.")
