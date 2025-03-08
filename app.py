@@ -81,4 +81,4 @@ if st.button("Calculate VaR"):
             st.write(f"there is a {100-var_percentile:.0f}% chance of experiencing a loss greater than {VaR_value:.1f}% over the given period.")
             
         else:
-            st.error("Error fetching data. Please check the stock symbol.")
+            st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
