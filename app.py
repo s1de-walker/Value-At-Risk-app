@@ -19,7 +19,7 @@ st.sidebar.write("- **Analysis Period:** If your average holding period is 5 day
 st.sidebar.write("")
 st.sidebar.write("- **Monte Carlo Simulations:** More simulations improve accuracy but take longer to compute.")
 st.sidebar.write("")
-st.sidebar.write("- **Percentile:** Defines the risk threshold—e.g., the 95th percentile represents a 2-sigma event (unusual but possible losses).")
+st.sidebar.write("- **Percentile:** Defines the risk threshold—e.g., the 95th percentile represents a 2-sigma event")
 
 # User Inputs
 stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
