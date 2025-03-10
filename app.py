@@ -13,7 +13,7 @@ st.title("Value at Risk")
 st.write("")
 st.write("")
 
-st.subheader("How much could I lose over a given period, with a given probability?")
+st.subheader("How much could I lose over a given period, for a given probability?")
 
 
 # Sidebar Instructions
