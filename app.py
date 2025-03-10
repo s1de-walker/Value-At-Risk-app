@@ -11,6 +11,10 @@ import plotly.express as px
 # Title
 st.title("Value at Risk")
 st.write("")
+st.write("")
+
+st.subheader("How much loss could I face over a given period, with a certain probability?")
+
 
 # Sidebar Instructions
 st.sidebar.header("📖   How to Use Inputs")
