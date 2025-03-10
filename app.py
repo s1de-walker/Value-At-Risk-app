@@ -86,6 +86,16 @@ if st.button("Calculate VaR"):
             fig = px.histogram(x=simulated_returns, nbins=50, title="Monte Carlo Simulated Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
             fig.add_vline(x=VaR_value / 100, line=dict(color="red", width=2, dash="dash"))
             fig.update_layout(xaxis_title="Returns", yaxis_title="Frequency", showlegend=False)
+
+            # Store in Session State
+            st.session_state.var_result = {
+                "VaR_value": VaR_value,
+                "CVaR_value": CVaR_value,
+                "var_percentile": var_percentile
+            }
+
+            st.session_state.histogram_fig = fig
+            st.session_state.data = returns  # Store historical returns for stress testing
             
             # Display Interactive Histogram
             st.plotly_chart(fig)
