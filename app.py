@@ -71,6 +71,8 @@ if st.button("Calculate VaR"):
             # Monte Carlo Simulation
             simulated_returns = np.random.normal(mu, sigma, simulations)
             VaR_value = np.percentile(simulated_returns, 100 - var_percentile) * 100
+            # Compute CVaR (Expected Shortfall)
+            CVaR_value = simulated_returns[simulated_returns < (VaR_value / 100)].mean() * 100
             
             # Create Interactive Histogram
             fig = px.histogram(x=simulated_returns, nbins=50, title="Monte Carlo Simulated Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
@@ -84,6 +86,7 @@ if st.button("Calculate VaR"):
             # Display VaR
             st.markdown(f"<h5>VaR {var_percentile:.1f}:    <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{VaR_value:.1f}%</span></h5>", unsafe_allow_html=True)
             st.write(f"**There is a {100-var_percentile:.1f}% chance of experiencing a loss greater than {VaR_value:.1f}% over the given period.**")
+            st.write(f"**In the worst {100 - var_percentile}% of cases, the average loss was {CVaR_value:.2f}%.**")
             
         else:
             st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
