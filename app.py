@@ -86,3 +86,5 @@ if st.button("Calculate VaR"):
             
         else:
             st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
+
+st.divider()
