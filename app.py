@@ -110,4 +110,11 @@ if st.button("Calculate VaR"):
         else:
             st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
 
+if st.session_state.var_result:
+        st.plotly_chart(st.session_state.histogram_fig)
+        var_res = st.session_state.var_result
+        st.markdown(f"<h5>VaR {var_res['var_percentile']:.1f}:    <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{var_res['VaR_value']:.1f}%</span></h5>", unsafe_allow_html=True)
+        st.write(f"**There is a {100-var_res['var_percentile']:.1f}% chance of losing more than {var_res['VaR_value']:.1f}% over the period.**")
+        st.write(f"**Expected Shortfall (CVaR) in worst cases: {var_res['CVaR_value']:.2f}%**")
+
 st.divider()
