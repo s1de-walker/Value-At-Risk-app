@@ -25,6 +25,14 @@ st.sidebar.write("- **Percentile:** Defines the risk threshold—e.g., the VaR 9
 st.sidebar.write("")
 st.sidebar.write("- **Monte Carlo Simulations:** More simulations improve accuracy but take longer to compute.")
 
+# **Initialize Session State**
+if "var_result" not in st.session_state:
+    st.session_state.var_result = None
+if "histogram_fig" not in st.session_state:
+    st.session_state.histogram_fig = None
+if "data" not in st.session_state:
+    st.session_state.data = None
+
 # User Inputs
 stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
 col1, col2 = st.columns(2)
