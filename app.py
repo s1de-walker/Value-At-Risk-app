@@ -39,9 +39,10 @@ col1, col2, col3 = st.columns(3)
 with col1:
     analysis_period = st.number_input("Select Analysis Period (Days):", min_value=1, max_value=30, value=5)
 with col2:
-    simulations = st.number_input("Number of Monte Carlo Simulations:", min_value=100, max_value=10000, value=1000)
-with col3:
     var_percentile = st.number_input("Select VaR Percentile:", min_value=0.01, max_value=99.99, value=95.00, format="%.2f")
+with col3:
+    simulations = st.number_input("Number of Monte Carlo Simulations:", min_value=100, max_value=10000, value=1000)
+
 
 st.write("")
 
