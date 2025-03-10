@@ -87,6 +87,7 @@ if st.button("Calculate VaR"):
             st.markdown(f"<h5>VaR {var_percentile:.1f}:    <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{VaR_value:.1f}%</span></h5>", unsafe_allow_html=True)
             st.write(f"**There is a {100-var_percentile:.1f}% chance of experiencing a loss greater than {VaR_value:.1f}% over the given period.**")
             st.write(f"**In those worst {100 - var_percentile}% of cases, the average loss (aka Expected Shortfall) was {CVaR_value:.2f}%.**")
+            st.caption("*This is useful for managing tail risk.*")
             
         else:
             st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
