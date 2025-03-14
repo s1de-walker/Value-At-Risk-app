@@ -1,4 +1,4 @@
-#%%writefile app.py
+%%writefile app.py
 
 import streamlit as st
 import numpy as np
@@ -8,6 +8,8 @@ import plotly.figure_factory as ff
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import plotly.express as px
+
+#Libraries--------------------------------------------------------------------------------------
 
 # Title
 st.title("Value at Risk")
@@ -26,10 +28,10 @@ date_range_days = (end_date - start_date).days  # Calculate total available days
 
 st.divider()
 
-st.subheader("How much could I lose over a given period, for a given probability?")
-
+#Main inputs--------------------------------------------------------------------------------------
 
 # Sidebar Instructions
+st.sidebar.write("This Value at Risk (VaR) Analysis App helps users assess potential losses in a stock or ETF over a selected period for informed decision-making.")
 st.sidebar.header("📖   How to Use Inputs")
 st.sidebar.write("")
 st.sidebar.write("- **Analysis Period:** If your average holding period is 5 days, you may want to analyze how prices change over 5-day intervals.")
@@ -37,6 +39,13 @@ st.sidebar.write("")
 st.sidebar.write("- **Percentile:** Defines the risk threshold—e.g., the VaR 95th percentile represents a 2-sigma event and 95% of the data points are above that value.")
 st.sidebar.write("")
 st.sidebar.write("- **Monte Carlo Simulations:** More simulations improve accuracy but take longer to compute.")
+
+# Sidebar instructions-----------------------------------------------------------------------------
+
+# I. SECTION: VAR
+# ===============
+st.subheader("How much could I lose over a given period, for a given probability?")
+
 
 # **Initialize Session State**
 '''
@@ -125,14 +134,19 @@ if st.session_state.var_result:
         st.write(f"**Expected Shortfall (CVaR) in worst cases: {var_res['CVaR_value']:.2f}%**")
         st.caption("This helps to manage tail risk")
 
+# I SECTION-----------------------------------------------------------------------------------------------------------------------
+
 st.divider()
 
-hl_var_result = st.session_state.get("hl_var_result", {})  # Ensures a valid dictionary
+# II. SECTION: VAR HIGH-LOW
+# =========================
 
 # User Inputs
-# Inputs for High-Low Range VaR
 st.subheader("What's the range?")
 st.caption("Input for High minus Low analysis")
+
+hl_var_result = st.session_state.get("hl_var_result", None)  # Default to None
+
 col1, col2 = st.columns(2)
 with col1:
     hl_analysis_period = st.number_input("Select High-Low Analysis Period (Days):", min_value=1, max_value=30, value=5)
@@ -143,26 +157,38 @@ st.write("")
 
 # Button to Run High-Low VaR Calculation
 if st.button("Calculate High-Low VaR"):
-    data_hl = yf.download(stock, start=start_date, end=end_date)
-    
-    # Store in session state (ONLY for High-Low VaR)
-    st.session_state.hl_stock_name = stock  
-    
-    if data_hl is not None or not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
-        hl_range = data_hl["High"] - data_hl["Low"]
-        hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
-        VaR_hl_value = np.percentile(hl_range, 100 - hl_var_percentile)
+    error_flag = False  # Error flag for validation
 
-        st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": hl_var_percentile}
-        st.session_state.data_hl = data_hl  # Store data for later use
-    else:
-        st.error("Error fetching high-low data. Please check the stock symbol.")
+    if end_date < start_date:
+        st.error("🚨 End Date cannot be earlier than Start Date. Please select a valid range.")
+        error_flag = True
 
-# Display stock price and percentage change if data exists
-if "data_hl" in st.session_state:
-    data_hl = st.session_state.data_hl  
+    if start_date > datetime.today().date() or end_date > datetime.today().date():
+        st.error("🚨 Dates cannot be in the future. Please select a valid range.")
+        error_flag = True
 
-    stock_name = st.session_state.get("hl_stock_name", stock) 
+    # Run only if there are no errors
+    if not error_flag:
+        data_hl = yf.download(stock, start=start_date, end=end_date)
+
+        if data_hl is not None and not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
+            st.session_state.hl_stock_name = stock  # Store stock name
+            
+            hl_range = data_hl["High"] - data_hl["Low"]
+            hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
+            VaR_hl_value = np.percentile(hl_range, 100 - hl_var_percentile)
+
+            st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": hl_var_percentile}
+            st.session_state.data_hl = data_hl  # Store data for later use
+            
+        else:
+            st.session_state.hl_var_result = None  # Reset stored result on error
+            st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
+
+# Display only if a valid result exists
+if st.session_state.get("hl_var_result"):
+    data_hl = st.session_state.get("data_hl")
+    stock_name = st.session_state.get("hl_stock_name", stock)
 
     # Extract latest price and price change
     latest_price = data_hl["Close"].iloc[-1].item()
@@ -173,18 +199,12 @@ if "data_hl" in st.session_state:
     # ✅ Display stock price and change
     st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
 
-# Check if VaR results exist before displaying
-hl_var_result = st.session_state.get("hl_var_result", {})
-
-if hl_var_result:
-    hl_var_percentile = hl_var_result.get("Percentile", hl_var_percentile)  
-    VaR_hl_value = hl_var_result.get("VaR", 0)  
-
     # ✅ Display the risk statement
+    hl_var_percentile = st.session_state.hl_var_result["Percentile"]
+    VaR_hl_value = st.session_state.hl_var_result["VaR"]
+
     st.write(f"**{100 - hl_var_percentile:.1f}% chance that <span style='color:white'><b>{stock_name}</b></span> might move a range of ${VaR_hl_value:.2f}**", unsafe_allow_html=True)
 
-else:
-    st.caption("") # High-Low VaR has not been calculated yet. Please run the calculation.
 
 
 st.divider() # --------------------------------------------------------------------------------------------------------------------
