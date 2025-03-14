@@ -102,11 +102,24 @@ if st.button("Calculate VaR"):
         else:
             st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
 
-if st.session_state.var_result:
-        st.plotly_chart(st.session_state.histogram_fig)
-        var_res = st.session_state.var_result
-        st.markdown(f"<h5>VaR {var_res['var_percentile']:.1f}:    <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{var_res['VaR_value']:.1f}%</span></h5>", unsafe_allow_html=True)
-        st.write(f"**There is a {100-var_res['var_percentile']:.1f}% chance of losing more than {var_res['VaR_value']:.1f}% over the period.**")
-        st.write(f"**Expected Shortfall (CVaR) in worst cases: {var_res['CVaR_value']:.2f}%**")
+# Button to Run High-Low VaR Calculation
+if st.button("Calculate High-Low VaR"):
+    data_hl = yf.download(stock, start=start_date, end=end_date)[["High", "Low"]]
+    if not data_hl.empty:
+        hl_returns = (data_hl["High"] - data_hl["Low"]) / data_hl["Low"]
+        hl_returns = hl_returns.rolling(analysis_period).sum().dropna()
+        mu_hl, sigma_hl = hl_returns.mean(), hl_returns.std()
+        simulated_hl_returns = np.random.normal(mu_hl, sigma_hl, simulations)
+        VaR_hl_value = np.percentile(simulated_hl_returns, 100 - var_percentile) * 100
+        CVaR_hl_value = simulated_hl_returns[simulated_hl_returns < (VaR_hl_value / 100)].mean() * 100
+        st.session_state.hl_var_result = {"VaR": VaR_hl_value, "CVaR": CVaR_hl_value, "Percentile": var_percentile}
+    else:
+        st.error("Error fetching high-low data. Please check the stock symbol.")
 
-st.divider()
+# Display Results
+if st.session_state.var_result:
+    st.write(f"**VaR ({st.session_state.var_result['Percentile']}%): {st.session_state.var_result['VaR']:.2f}%**")
+    st.write(f"**Expected Shortfall (CVaR): {st.session_state.var_result['CVaR']:.2f}%**")
+if st.session_state.hl_var_result:
+    st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): {st.session_state.hl_var_result['VaR']:.2f}%**")
+    st.write(f"**High-Low Expected Shortfall (CVaR): {st.session_state.hl_var_result['CVaR']:.2f}%**")
