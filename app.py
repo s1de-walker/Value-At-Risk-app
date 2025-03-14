@@ -130,22 +130,38 @@ st.write("")
 # Button to Run High-Low VaR Calculation
 if st.button("Calculate High-Low VaR"):
     data_hl = yf.download(stock, start=start_date, end=end_date)
+    
     if not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
         hl_range = data_hl["High"] - data_hl["Low"]
         hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
         VaR_hl_value = np.percentile(hl_range, 100 - hl_var_percentile)
 
-        # Store results in session state
         st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": hl_var_percentile}
-        st.session_state.data_hl = data_hl  # Store data_hl in session state
+        st.session_state.data_hl = data_hl  # Store data for later use
     else:
         st.error("Error fetching high-low data. Please check the stock symbol.")
 
-if hl_var_result:
-    hl_var_percentile = hl_var_result.get("Percentile", hl_var_percentile)  # Default to input value
-    VaR_hl_value = hl_var_result.get("VaR", 0)  # Default to 0 if missing
+# Display stock price and percentage change if data exists
+if "data_hl" in st.session_state:
+    data_hl = st.session_state.data_hl  
 
-    # Display the risk statement
+    # Extract latest price and price change
+    latest_price = data_hl["Close"].iloc[-1].item()
+    prev_price = data_hl["Close"].iloc[-2].item()
+    price_change = latest_price - prev_price
+    price_change_pct = (price_change / prev_price) * 100
+
+    # ✅ Display stock price and change
+    st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
+
+# Check if VaR results exist before displaying
+hl_var_result = st.session_state.get("hl_var_result", {})
+
+if hl_var_result:
+    hl_var_percentile = hl_var_result.get("Percentile", hl_var_percentile)  
+    VaR_hl_value = hl_var_result.get("VaR", 0)  
+
+    # ✅ Display the risk statement
     st.write(f"**{100 - hl_var_percentile:.1f}% chance that the price might move a range of ${VaR_hl_value:.2f}**")
 else:
     st.warning("High-Low VaR has not been calculated yet. Please run the calculation.")
