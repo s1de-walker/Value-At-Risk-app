@@ -127,8 +127,8 @@ if st.button("Calculate High-Low VaR"):
         previous_close = data_hl["Close"].iloc[-2]
         price_change = latest_close - previous_close
         
-        latest_price = data_hl["Close"].iloc[-1]
-        price_change = latest_price - data_hl["Close"].iloc[-2]
+        latest_price = data_hl["Close"].iloc[-1].item()  # Converts Series to scalar
+        price_change = (latest_price - data_hl["Close"].iloc[-2]).item()
         
         st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change:.2f}")
     else:
