@@ -146,4 +146,5 @@ if st.session_state.hl_var_result:
 
     st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
     
-    st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): {st.session_state.hl_var_result['VaR']:.2f}**")
+    st.write(f"**{100 - var_percentile_hl:.1f}% chance that the price might move a range of {st.session_state.hl_var_result['VaR']:.2f}%**")
+
