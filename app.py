@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 import plotly.express as px
+import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
 # Title
@@ -20,6 +21,8 @@ if "var_result" not in st.session_state:
     st.session_state.var_result = None
 if "hl_var_result" not in st.session_state:
     st.session_state.hl_var_result = None
+if "histogram_fig" not in st.session_state:
+    st.session_state.histogram_fig = None
 
 # User Inputs
 stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
@@ -46,7 +49,14 @@ if st.button("Calculate VaR"):
         simulated_returns = np.random.normal(mu, sigma, simulations)
         VaR_value = np.percentile(simulated_returns, 100 - var_percentile) * 100
         CVaR_value = simulated_returns[simulated_returns < (VaR_value / 100)].mean() * 100
+        
+        # Create Interactive Histogram
+        fig = px.histogram(x=simulated_returns, nbins=50, title="Monte Carlo Simulated Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
+        fig.add_vline(x=VaR_value / 100, line=dict(color="red", width=2, dash="dash"))
+        fig.update_layout(xaxis_title="Returns", yaxis_title="Frequency", showlegend=False)
+
         st.session_state.var_result = {"VaR": VaR_value, "CVaR": CVaR_value, "Percentile": var_percentile}
+        st.session_state.histogram_fig = fig
     else:
         st.error("Error fetching data. Please check the stock symbol.")
 
@@ -60,14 +70,23 @@ if st.button("Calculate High-Low VaR"):
         simulated_hl_returns = np.random.normal(mu_hl, sigma_hl, simulations)
         VaR_hl_value = np.percentile(simulated_hl_returns, 100 - var_percentile) * 100
         CVaR_hl_value = simulated_hl_returns[simulated_hl_returns < (VaR_hl_value / 100)].mean() * 100
+        
+        # Create Interactive Histogram for High-Low VaR
+        fig_hl = px.histogram(x=simulated_hl_returns, nbins=50, title="Monte Carlo Simulated High-Low Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
+        fig_hl.add_vline(x=VaR_hl_value / 100, line=dict(color="red", width=2, dash="dash"))
+        fig_hl.update_layout(xaxis_title="Returns", yaxis_title="Frequency", showlegend=False)
+
         st.session_state.hl_var_result = {"VaR": VaR_hl_value, "CVaR": CVaR_hl_value, "Percentile": var_percentile}
+        st.session_state.histogram_fig = fig_hl
     else:
         st.error("Error fetching high-low data. Please check the stock symbol.")
 
 # Display Results
 if st.session_state.var_result:
+    st.plotly_chart(st.session_state.histogram_fig)
     st.write(f"**VaR ({st.session_state.var_result['Percentile']}%): {st.session_state.var_result['VaR']:.2f}%**")
     st.write(f"**Expected Shortfall (CVaR): {st.session_state.var_result['CVaR']:.2f}%**")
 if st.session_state.hl_var_result:
+    st.plotly_chart(st.session_state.histogram_fig)
     st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): {st.session_state.hl_var_result['VaR']:.2f}%**")
     st.write(f"**High-Low Expected Shortfall (CVaR): {st.session_state.hl_var_result['CVaR']:.2f}%**")
