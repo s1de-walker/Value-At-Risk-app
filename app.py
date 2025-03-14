@@ -15,7 +15,7 @@ st.write("")
 st.write("")
 
 # User Inputs
-stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
+stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY").upper()
 col1, col2 = st.columns(2)
 with col1:
     start_date = st.date_input("Select Start Date:", value=datetime.today() - timedelta(days=500))
