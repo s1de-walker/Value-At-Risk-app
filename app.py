@@ -137,5 +137,9 @@ if st.button("Calculate High-Low VaR"):
         st.error("Error fetching high-low data. Please check the stock symbol.")
 
 if st.session_state.hl_var_result:
-    st.metric(label="Stock Price", value=f"${data_hl['Close'].iloc[-1]:.2f}", delta=f"{((data_hl['Close'].iloc[-1] - data_hl['Close'].iloc[-2]) / data_hl['Close'].iloc[-2]) * 100:.2f}%", delta_color="inverse")
+    latest_price = data_hl["Close"].iloc[-1].values[0]
+    price_change = (latest_price - data_hl["Close"].iloc[-2].values[0])
+    
+    st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"${price_change:.2f}")
+    
     st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): {st.session_state.hl_var_result['VaR']:.2f}**")
