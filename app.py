@@ -124,7 +124,7 @@ if st.button("Calculate VaR"):
      
             
         else:
-            st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
+            st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance). Use .NS after ticker for NSE stocks")
 
 if st.session_state.var_result:
         st.plotly_chart(st.session_state.histogram_fig)
@@ -183,7 +183,7 @@ if st.button("Calculate High-Low VaR"):
             
         else:
             st.session_state.hl_var_result = None  # Reset stored result on error
-            st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
+            st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance). Use .NS after ticker for NSE stocks")
 
 # Display only if a valid result exists
 if st.session_state.get("hl_var_result"):
@@ -243,7 +243,7 @@ if st.button("Calculate Rolling Volatility"):
         st.session_state.rv_stock_name = stock  # Store stock name after button click
 
     else:
-        st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
+        st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance). Use .NS after ticker for NSE stocks")
 
 # Display Rolling Volatility Trend
 if "data_rv" in st.session_state:
