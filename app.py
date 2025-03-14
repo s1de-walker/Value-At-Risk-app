@@ -121,7 +121,7 @@ col1, col2 = st.columns(2)
 with col1:
     hl_analysis_period = st.number_input("Select High-Low Analysis Period (Days):", min_value=1, max_value=30, value=5)
 with col2:
-    hl_var_percentile = st.number_input("Select High-Low VaR Percentile:", min_value=0.01, max_value=99.99, value=95.00, format="%.2f")
+    hl_var_percentile = st.number_input("Select High-Low VaR Percentile:", min_value=0.01, max_value=99.99, value=99.00, format="%.2f")
 
 st.write("")
 
