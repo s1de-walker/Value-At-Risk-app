@@ -125,26 +125,17 @@ with col2:
 
 st.write("")
 
-# High-Low VaR Calculation
+# Button to Run High-Low VaR Calculation
 if st.button("Calculate High-Low VaR"):
     data_hl = yf.download(stock, start=start_date, end=end_date)
-    if not data_hl.empty:
+    if not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
         hl_range = data_hl["High"] - data_hl["Low"]
-        VaR_hl_value = np.percentile(hl_range, 100 - var_percentile)
-        st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": var_percentile}
-        
-        latest_close = data_hl["Close"].iloc[-1]
-        previous_close = data_hl["Close"].iloc[-2]
-        price_change = latest_close - previous_close
-        
-        latest_price = data_hl["Close"].iloc[-1].item()  
-        previous_price = data_hl["Close"].iloc[-2].item()
-        price_change_pct = ((latest_price - previous_price) / previous_price) * 100  
-        
-        st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%", delta_color="inverse")
+        hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
+        VaR_hl_value = np.percentile(hl_range, 100 - hl_var_percentile)
+        st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": hl_var_percentile}
     else:
         st.error("Error fetching high-low data. Please check the stock symbol.")
-        
-if st.session_state.hl_var_result:
-    st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): ${st.session_state.hl_var_result['VaR']:.2f}**")
 
+if st.session_state.hl_var_result:
+    st.metric(label="Stock Price", value=f"${data_hl['Close'].iloc[-1]:.2f}", delta=f"{((data_hl['Close'].iloc[-1] - data_hl['Close'].iloc[-2]) / data_hl['Close'].iloc[-2]) * 100:.2f}%", delta_color="inverse")
+    st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): {st.session_state.hl_var_result['VaR']:.2f}**")
