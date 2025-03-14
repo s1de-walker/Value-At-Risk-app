@@ -115,22 +115,22 @@ if st.session_state.var_result:
 
 st.divider()
 
-# Button to Run High-Low VaR Calculation
+# High-Low VaR Calculation
 if st.button("Calculate High-Low VaR"):
     data_hl = yf.download(stock, start=start_date, end=end_date)
     if not data_hl.empty:
-        high_low_range = data_hl["High"] - data_hl["Low"]
-        hl_var_value = np.percentile(high_low_range, 100 - var_percentile)
-
-        st.session_state.hl_var_result = {
-            "VaR": hl_var_value,
-            "Percentile": var_percentile
-        }
+        hl_range = data_hl["High"] - data_hl["Low"]
+        VaR_hl_value = np.percentile(hl_range, 100 - var_percentile)
+        st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": var_percentile}
+        
+        latest_close = data_hl["Close"].iloc[-1]
+        previous_close = data_hl["Close"].iloc[-2]
+        price_change = latest_close - previous_close
+        
+        st.metric(label=f"{stock} Latest Price", value=f"${latest_close:.2f}", delta=f"${price_change:.2f}")
     else:
-        st.error("🚨 Error fetching high-low data. Please check the stock symbol.")
-
+        st.error("Error fetching high-low data. Please check the stock symbol.")
+        
 if st.session_state.hl_var_result:
-    hl_res = st.session_state.hl_var_result
-    st.markdown(f"<h5>High-Low VaR {hl_res['Percentile']:.1f}:    <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{hl_res['VaR']:.2f}</span></h5>", unsafe_allow_html=True)
-    st.write(f"**There is a {100-hl_res['Percentile']:.1f}% chance of seeing a range larger than {hl_res['VaR']:.2f} over the period.**")
+    st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): ${st.session_state.hl_var_result['VaR']:.2f}**")
 
