@@ -116,7 +116,8 @@ if st.session_state.var_result:
 st.divider()
 
 # Inputs for High-Low Range VaR
-st.subheader("High-Low Range VaR Inputs")
+st.subheader("What's the range?")
+st.write("Input for (High - Low)")
 col1, col2 = st.columns(2)
 with col1:
     hl_analysis_period = st.number_input("Select High-Low Analysis Period (Days):", min_value=1, max_value=30, value=5)
