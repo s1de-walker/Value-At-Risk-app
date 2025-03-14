@@ -112,12 +112,13 @@ if st.session_state.var_result:
         st.markdown(f"<h5>VaR {var_res['var_percentile']:.1f}:    <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{var_res['VaR_value']:.1f}%</span></h5>", unsafe_allow_html=True)
         st.write(f"**There is a {100-var_res['var_percentile']:.1f}% chance of losing more than {var_res['VaR_value']:.1f}% over the period.**")
         st.write(f"**Expected Shortfall (CVaR) in worst cases: {var_res['CVaR_value']:.2f}%**")
+        st.caption("This helps to manage tail risk")
 
 st.divider()
 
 # Inputs for High-Low Range VaR
 st.subheader("What's the range?")
-st.write("Input for (High - Low)")
+st.caption("Input for High minus Low analysis")
 col1, col2 = st.columns(2)
 with col1:
     hl_analysis_period = st.number_input("Select High-Low Analysis Period (Days):", min_value=1, max_value=30, value=5)
