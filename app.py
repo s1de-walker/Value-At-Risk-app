@@ -1,3 +1,5 @@
+%%writefile app.py
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -11,6 +13,18 @@ import plotly.express as px
 st.title("Value at Risk")
 st.write("")
 st.write("")
+
+# User Inputs
+stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
+col1, col2 = st.columns(2)
+with col1:
+    start_date = st.date_input("Select Start Date:", value=datetime.today() - timedelta(days=500))
+with col2:
+    end_date = st.date_input("Select End Date:", value=datetime.today())
+
+date_range_days = (end_date - start_date).days  # Calculate total available days
+
+st.divider()
 
 st.subheader("How much could I lose over a given period, for a given probability?")
 
@@ -32,15 +46,6 @@ if "histogram_fig" not in st.session_state:
 if "data" not in st.session_state:
     st.session_state.data = None
 
-
-
-# User Inputs
-stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
-col1, col2 = st.columns(2)
-with col1:
-    start_date = st.date_input("Select Start Date:", value=datetime.today() - timedelta(days=500))
-with col2:
-    end_date = st.date_input("Select End Date:", value=datetime.today())
 
 st.write("")
 
@@ -82,9 +87,12 @@ if st.button("Calculate VaR"):
             VaR_value = np.percentile(simulated_returns, 100 - var_percentile) * 100
             # Compute CVaR (Expected Shortfall)
             CVaR_value = simulated_returns[simulated_returns < (VaR_value / 100)].mean() * 100
+
+            # Custom font color for stock name
+            stock_name_colored = f"<span style='color:white'><b>{stock.upper()}</b></span>"
             
             # Create Interactive Histogram
-            fig = px.histogram(x=simulated_returns, nbins=50, title="Monte Carlo Simulated Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
+            fig = px.histogram(x=simulated_returns, nbins=50, title=f"Monte Carlo Simulated Returns: {stock_name_colored}", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
             fig.add_vline(x=VaR_value / 100, line=dict(color="red", width=2, dash="dash"))
             fig.update_layout(xaxis_title="Returns", yaxis_title="Frequency", showlegend=False)
 
@@ -131,6 +139,9 @@ st.write("")
 if st.button("Calculate High-Low VaR"):
     data_hl = yf.download(stock, start=start_date, end=end_date)
     
+    # Store in session state
+    st.session_state.stock_name = stock
+    
     if not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
         hl_range = data_hl["High"] - data_hl["Low"]
         hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
@@ -144,6 +155,8 @@ if st.button("Calculate High-Low VaR"):
 # Display stock price and percentage change if data exists
 if "data_hl" in st.session_state:
     data_hl = st.session_state.data_hl  
+
+    stock_name = st.session_state.get("stock_name", stock) 
 
     # Extract latest price and price change
     latest_price = data_hl["Close"].iloc[-1].item()
@@ -162,6 +175,71 @@ if hl_var_result:
     VaR_hl_value = hl_var_result.get("VaR", 0)  
 
     # ✅ Display the risk statement
-    st.write(f"**{100 - hl_var_percentile:.1f}% chance that {stock} might move a range of ${VaR_hl_value:.2f}**")
+    st.write(f"**{100 - hl_var_percentile:.1f}% chance that {stock_name} might move a range of ${VaR_hl_value:.2f}**")
 else:
     st.caption("") # High-Low VaR has not been calculated yet. Please run the calculation.
+
+
+st.divider() # --------------------------------------------------------------------------------------------------------------------
+
+st.subheader("Is it getting riskier?")
+st.caption("Select rolling windows for short-term and long-term volatility.")
+
+col1, col2 = st.columns(2)
+with col1:
+    short_vol_window = st.number_input("Short-Term Window (Days):", min_value=1, max_value=date_range_days, value=10)
+with col2:
+    long_vol_window = st.number_input("Long-Term Window (Days):", min_value=1, max_value=date_range_days, value=50)
+
+st.write("")
+
+# Button to Calculate Rolling Volatility
+if st.button("Calculate Rolling Volatility"):
+    data_rv = yf.download(stock, start=start_date, end=end_date)["Close"]
+    if not data_rv.empty:
+        short_vol = data_rv.pct_change().rolling(short_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
+        long_vol = data_rv.pct_change().rolling(long_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
+        
+        # Ensure both are Series with the same index
+        short_vol = short_vol.loc[short_vol.index.intersection(long_vol.index)]
+        long_vol = long_vol.loc[long_vol.index.intersection(short_vol.index)]
+
+        # Create a DataFrame
+        vol_df = pd.DataFrame({
+            "Date": short_vol.index,
+            "Short Vol": short_vol.values,  # Ensure 1D
+            "Long Vol": long_vol.values     # Ensure 1D
+        }).dropna()
+
+        # Store in session state
+        st.session_state.data_rv = vol_df
+        st.session_state.stock_name = stock  # Store stock name after button click
+
+    else:
+        st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
+
+# Display Rolling Volatility Trend
+if "data_rv" in st.session_state:
+    vol_df = st.session_state.data_rv
+
+    # Use the stored stock name after button click
+    stock_name = st.session_state.get("stock_name", "Stock")
+
+    # Custom colors
+    custom_colors = {"Short Vol": "red", "Long Vol": "#6b5d50"}
+
+    # Custom font color for stock name
+    stock_name_colored = f"<span style='color:white'><b>{stock_name.upper()}</b></span>"
+
+    # Create the title with colored stock name
+    plot_title = f"Rolling Volatility Trend for {stock_name_colored}"
+
+    # Create the line plot
+    fig = px.line(vol_df, x="Date", y=["Short Vol", "Long Vol"], title=plot_title,
+                  labels={"value": "Volatility (%)", "Date": "Date", "variable": "Volatility Type"},
+                  color_discrete_map=custom_colors)
+
+    fig.update_traces(mode="lines", line=dict(width=2))
+    fig.update_layout(showlegend=True, legend_title="Type")
+
+    st.plotly_chart(fig, use_container_width=True)
