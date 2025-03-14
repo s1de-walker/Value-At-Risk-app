@@ -110,3 +110,29 @@ if st.session_state.var_result:
 
 st.divider()
 
+# High-Low VaR Calculation
+if st.button("Calculate High-Low VaR"):
+    data_hl = yf.download(stock, start=start_date, end=end_date)
+    if not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
+        hl_returns = (data_hl["High"] - data_hl["Low"]) / data_hl["Low"]
+        hl_returns = hl_returns.rolling(analysis_period).sum().dropna()
+        mu_hl, sigma_hl = hl_returns.mean(), hl_returns.std()
+        simulated_hl_returns = np.random.normal(mu_hl, sigma_hl, simulations)
+        VaR_hl_value = np.percentile(simulated_hl_returns, 100 - var_percentile) * 100
+        CVaR_hl_value = simulated_hl_returns[simulated_hl_returns < (VaR_hl_value / 100)].mean() * 100
+        
+        fig_hl = px.histogram(x=simulated_hl_returns, nbins=50, title="Monte Carlo Simulated High-Low Returns", labels={"x": "Returns"}, opacity=0.7, color_discrete_sequence=["#6b5d50"])
+        fig_hl.add_vline(x=VaR_hl_value / 100, line=dict(color="red", width=2, dash="dash"))
+        fig_hl.update_layout(xaxis_title="Returns", yaxis_title="Frequency", showlegend=False)
+        
+        st.session_state.hl_var_result = {"VaR_value": VaR_hl_value, "CVaR_value": CVaR_hl_value, "var_percentile": var_percentile}
+        st.session_state.hl_histogram_fig = fig_hl
+    else:
+        st.error("🚨 Error fetching high-low data. Please check the stock symbol.")
+
+if st.session_state.hl_var_result:
+    st.plotly_chart(st.session_state.hl_histogram_fig)
+    hl_var_res = st.session_state.hl_var_result
+    st.markdown(f"<h5>High-Low VaR {hl_var_res['var_percentile']:.1f}: <span style='font-size:32px; font-weight:bold; color:#FF5733;'>{hl_var_res['VaR_value']:.1f}%</span></h5>", unsafe_allow_html=True)
+
+
