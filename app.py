@@ -104,8 +104,8 @@ if st.button("Calculate VaR"):
 
 # Button to Run High-Low VaR Calculation
 if st.button("Calculate High-Low VaR"):
-    data_hl = yf.download(stock, start=start_date, end=end_date)[["High", "Low"]]
-    if not data_hl.empty:
+    data_hl = yf.download(stock, start=start_date, end=end_date)
+    if not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
         hl_returns = (data_hl["High"] - data_hl["Low"]) / data_hl["Low"]
         hl_returns = hl_returns.rolling(analysis_period).sum().dropna()
         mu_hl, sigma_hl = hl_returns.mean(), hl_returns.std()
