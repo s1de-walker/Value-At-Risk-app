@@ -5,7 +5,4 @@
 <BR/>
 
 
-<img src = sc/VAR1.JPG>
-<img src = sc/VAR2.JPG>
-
 
