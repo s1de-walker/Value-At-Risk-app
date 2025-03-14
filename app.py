@@ -115,6 +115,16 @@ if st.session_state.var_result:
 
 st.divider()
 
+# Inputs for High-Low Range VaR
+st.subheader("High-Low Range VaR Inputs")
+col1, col2 = st.columns(2)
+with col1:
+    hl_analysis_period = st.number_input("Select High-Low Analysis Period (Days):", min_value=1, max_value=30, value=5)
+with col2:
+    hl_var_percentile = st.number_input("Select High-Low VaR Percentile:", min_value=0.01, max_value=99.99, value=95.00, format="%.2f")
+
+st.write("")
+
 # High-Low VaR Calculation
 if st.button("Calculate High-Low VaR"):
     data_hl = yf.download(stock, start=start_date, end=end_date)
