@@ -73,16 +73,14 @@ if st.button("Calculate VaR"):
         st.error("🚨 Dates cannot be in the future. Please select a valid range.")
         error_flag = True
 
-    if data.empty:
-        st.error("🚨 Invalid ticker symbol. Please input a valid stock/ETF as per yfinance.")
-        error_flag = True
+    
     
     # **Run only if there are no errors**
     if not error_flag:
         # Fetch Data
         data = yf.download(stock, start=start_date, end=end_date)["Close"]
 
-        if data is not None or not data.empty:
+        if data is not None and not data.empty:
             returns = data.pct_change(analysis_period).dropna()
             mu, sigma = returns.mean(), returns.std()
             
@@ -109,8 +107,7 @@ if st.button("Calculate VaR"):
 
             st.session_state.histogram_fig = fig
             st.session_state.data = returns  # Store historical returns for stress testing
-            
-            
+     
             
         else:
             st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
