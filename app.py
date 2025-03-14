@@ -134,33 +134,33 @@ if st.button("Calculate High-Low VaR"):
         hl_range = data_hl["High"] - data_hl["Low"]
         hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
         VaR_hl_value = np.percentile(hl_range, 100 - hl_var_percentile)
+
+        # Store results in session state
         st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": hl_var_percentile}
-        # Store data_hl in session state
-        st.session_state.data_hl = data_hl
+        st.session_state.data_hl = data_hl  # Store data_hl in session state
     else:
         st.error("Error fetching high-low data. Please check the stock symbol.")
 
-    
-
+# Retrieve stored high-low data if available
 if "data_hl" in st.session_state:
-    data_hl = st.session_state.data_hl  # Retrieve stored high-low data
+    data_hl = st.session_state.data_hl  
     
     # Extract latest price and price change
-    latest_price = data_hl["Close"].iloc[-1].item()  # Convert to scalar
-    prev_price = data_hl["Close"].iloc[-2].item()  # Convert to scalar
+    latest_price = data_hl["Close"].iloc[-1].item()  
+    prev_price = data_hl["Close"].iloc[-2].item()  
     price_change = latest_price - prev_price
     price_change_pct = (price_change / prev_price) * 100
 
     # Display metric for stock price and percentage change
     st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
 
-# Check if VaR results exist before displaying
+# Check if High-Low VaR results exist before displaying
 if "hl_var_result" in st.session_state:
-    hl_var_result = st.session_state.hl_var_result  # Retrieve stored VaR result
+    hl_var_result = st.session_state.hl_var_result  
     
     # Extract values
     hl_var_percentile = hl_var_result["Percentile"]
-    VaR_hl_value = hl_var_result["VaR_value"]
+    VaR_hl_value = hl_var_result["VaR"]  # ✅ Corrected key
 
     # Display the risk statement
     st.write(f"**{100 - hl_var_percentile:.1f}% chance that the price might move a range of {VaR_hl_value:.2f}%**")
