@@ -72,6 +72,10 @@ if st.button("Calculate VaR"):
     if start_date > datetime.today().date() or end_date > datetime.today().date():
         st.error("🚨 Dates cannot be in the future. Please select a valid range.")
         error_flag = True
+
+    if data.empty:
+        st.error("🚨 Invalid ticker symbol. Please input a valid stock/ETF as per yfinance.")
+        error_flag = True
     
     # **Run only if there are no errors**
     if not error_flag:
