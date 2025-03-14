@@ -139,8 +139,8 @@ st.write("")
 if st.button("Calculate High-Low VaR"):
     data_hl = yf.download(stock, start=start_date, end=end_date)
     
-    # Store in session state
-    st.session_state.stock_name = stock
+    # Store in session state (ONLY for High-Low VaR)
+    st.session_state.hl_stock_name = stock  
     
     if data_hl is not None or not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
         hl_range = data_hl["High"] - data_hl["Low"]
@@ -156,7 +156,7 @@ if st.button("Calculate High-Low VaR"):
 if "data_hl" in st.session_state:
     data_hl = st.session_state.data_hl  
 
-    stock_name = st.session_state.get("stock_name", stock) 
+    stock_name = st.session_state.get("hl_stock_name", stock) 
 
     # Extract latest price and price change
     latest_price = data_hl["Close"].iloc[-1].item()
@@ -214,7 +214,7 @@ if st.button("Calculate Rolling Volatility"):
 
         # Store in session state
         st.session_state.data_rv = vol_df
-        st.session_state.stock_name = stock  # Store stock name after button click
+        st.session_state.rv_stock_name = stock  # Store stock name after button click
 
     else:
         st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
@@ -224,7 +224,7 @@ if "data_rv" in st.session_state:
     vol_df = st.session_state.data_rv
 
     # Use the stored stock name after button click
-    stock_name = st.session_state.get("stock_name", "Stock")
+    stock_name = st.session_state.get("rv_stock_name", stock)
 
     # Custom colors
     custom_colors = {"Short Vol": "red", "Long Vol": "#6b5d50"}
