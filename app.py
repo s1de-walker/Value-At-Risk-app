@@ -164,4 +164,4 @@ if hl_var_result:
     # ✅ Display the risk statement
     st.write(f"**{100 - hl_var_percentile:.1f}% chance that the price might move a range of ${VaR_hl_value:.2f}**")
 else:
-    st.warning("High-Low VaR has not been calculated yet. Please run the calculation.")
+    st.caption("High-Low VaR has not been calculated yet. Please run the calculation.")
