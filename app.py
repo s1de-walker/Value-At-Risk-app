@@ -140,6 +140,8 @@ if st.session_state.hl_var_result:
     latest_price = data_hl["Close"].iloc[-1].values[0]
     price_change = (latest_price - data_hl["Close"].iloc[-2].values[0])
     
-    st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"${price_change:.2f}")
+    price_change_pct = (price_change / data_hl["Close"].iloc[-2].values[0]) * 100
+
+    st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
     
     st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): {st.session_state.hl_var_result['VaR']:.2f}**")
