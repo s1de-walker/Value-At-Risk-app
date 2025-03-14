@@ -135,16 +135,24 @@ if st.button("Calculate High-Low VaR"):
         hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
         VaR_hl_value = np.percentile(hl_range, 100 - hl_var_percentile)
         st.session_state.hl_var_result = {"VaR": VaR_hl_value, "Percentile": hl_var_percentile}
+        # Store data_hl in session state
+        st.session_state.data_hl = data_hl
     else:
         st.error("Error fetching high-low data. Please check the stock symbol.")
 
-if st.session_state.hl_var_result:
-    latest_price = data_hl["Close"].iloc[-1].values[0]
-    price_change = (latest_price - data_hl["Close"].iloc[-2].values[0])
     
-    price_change_pct = (price_change / data_hl["Close"].iloc[-2].values[0]) * 100
+
+if "data_hl" in st.session_state:
+    data_hl = st.session_state.data_hl  # Retrieve stored data
+    latest_price = data_hl["Close"].iloc[-1]
+    price_change = latest_price - data_hl["Close"].iloc[-2]
+    price_change_pct = (price_change / data_hl["Close"].iloc[-2]) * 100
+
+if st.session_state.hl_var_result:
+    latest_price = data_hl["Close"].iloc[-1]  # ✅ No .values[0]
+    price_change = latest_price - data_hl["Close"].iloc[-2]  # ✅ No .values[0]
+    price_change_pct = (price_change / data_hl["Close"].iloc[-2]) * 100  # ✅ No .values[0]
 
     st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
     
-    st.write(f"**{100 - hl_var_percentile:.1f}% chance that the price might move a range of {VaR_hl_value:.2f}%**")
-
+    st.write(f"**{100 - st.session_state.hl_var_result['Percentile']:.1f}% chance that the price might move a range of {st.session_state.hl_var_result['VaR_hl_value']:.2f}**")
