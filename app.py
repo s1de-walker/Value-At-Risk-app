@@ -127,7 +127,10 @@ if st.button("Calculate High-Low VaR"):
         previous_close = data_hl["Close"].iloc[-2]
         price_change = latest_close - previous_close
         
-        st.metric(label=f"{stock} Latest Price", value=f"${latest_close:.2f}", delta=f"${price_change:.2f}")
+        latest_price = data_hl["Close"].iloc[-1]
+        price_change = latest_price - data_hl["Close"].iloc[-2]
+        
+        st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change:.2f}")
     else:
         st.error("Error fetching high-low data. Please check the stock symbol.")
         
