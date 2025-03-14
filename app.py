@@ -144,9 +144,9 @@ if st.button("Calculate High-Low VaR"):
 
 if "data_hl" in st.session_state:
     data_hl = st.session_state.data_hl  # Retrieve stored data
-    latest_price = data_hl["Close"].iloc[-1]
-    price_change = latest_price - data_hl["Close"].iloc[-2]
-    price_change_pct = (price_change / data_hl["Close"].iloc[-2]) * 100
+    latest_price = data_hl["Close"].iloc[-1].item()  # ✅ Extracts scalar value
+    price_change = latest_price - data_hl["Close"].iloc[-2].item()  # ✅ Extracts scalar value
+    price_change_pct = (price_change / data_hl["Close"].iloc[-2].item()) * 100  # ✅ Extracts scalar value
 
 if st.session_state.hl_var_result:
     latest_price = data_hl["Close"].iloc[-1]  # ✅ No .values[0]
