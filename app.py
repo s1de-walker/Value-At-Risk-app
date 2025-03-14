@@ -143,16 +143,24 @@ if st.button("Calculate High-Low VaR"):
     
 
 if "data_hl" in st.session_state:
-    data_hl = st.session_state.data_hl  # Retrieve stored data
-    latest_price = data_hl["Close"].iloc[-1].item()  # ✅ Extracts scalar value
-    price_change = latest_price - data_hl["Close"].iloc[-2].item()  # ✅ Extracts scalar value
-    price_change_pct = (price_change / data_hl["Close"].iloc[-2].item()) * 100  # ✅ Extracts scalar value
-
-if st.session_state.hl_var_result:
-    latest_price = data_hl["Close"].iloc[-1]  # ✅ No .values[0]
-    price_change = latest_price - data_hl["Close"].iloc[-2]  # ✅ No .values[0]
-    price_change_pct = (price_change / data_hl["Close"].iloc[-2]) * 100  # ✅ No .values[0]
-
-    st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
+    data_hl = st.session_state.data_hl  # Retrieve stored high-low data
     
-    st.write(f"**{100 - st.session_state.hl_var_result['Percentile']:.1f}% chance that the price might move a range of {st.session_state.hl_var_result['VaR_hl_value']:.2f}**")
+    # Extract latest price and price change
+    latest_price = data_hl["Close"].iloc[-1].item()  # Convert to scalar
+    prev_price = data_hl["Close"].iloc[-2].item()  # Convert to scalar
+    price_change = latest_price - prev_price
+    price_change_pct = (price_change / prev_price) * 100
+
+    # Display metric for stock price and percentage change
+    st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%")
+
+# Check if VaR results exist before displaying
+if "hl_var_result" in st.session_state:
+    hl_var_result = st.session_state.hl_var_result  # Retrieve stored VaR result
+    
+    # Extract values
+    hl_var_percentile = hl_var_result["Percentile"]
+    VaR_hl_value = hl_var_result["VaR_value"]
+
+    # Display the risk statement
+    st.write(f"**{100 - hl_var_percentile:.1f}% chance that the price might move a range of {VaR_hl_value:.2f}%**")
