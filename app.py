@@ -32,6 +32,11 @@ if "histogram_fig" not in st.session_state:
 if "data" not in st.session_state:
     st.session_state.data = None
 
+if "hl_var_result" not in st.session_state:
+    st.session_state.hl_var_result = None
+if "hl_histogram_fig" not in st.session_state:
+    st.session_state.hl_histogram_fig = None
+
 # User Inputs
 stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
 col1, col2 = st.columns(2)
