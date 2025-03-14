@@ -78,7 +78,7 @@ if st.button("Calculate VaR"):
         # Fetch Data
         data = yf.download(stock, start=start_date, end=end_date)["Close"]
 
-        if data is None or data.empty:
+        if data is not None or not data.empty:
             returns = data.pct_change(analysis_period).dropna()
             mu, sigma = returns.mean(), returns.std()
             
@@ -142,7 +142,7 @@ if st.button("Calculate High-Low VaR"):
     # Store in session state
     st.session_state.stock_name = stock
     
-    if data_hl is None or not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
+    if data_hl is not None or not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
         hl_range = data_hl["High"] - data_hl["Low"]
         hl_range = hl_range.rolling(hl_analysis_period).sum().dropna()
         VaR_hl_value = np.percentile(hl_range, 100 - hl_var_percentile)
@@ -196,7 +196,7 @@ st.write("")
 # Button to Calculate Rolling Volatility
 if st.button("Calculate Rolling Volatility"):
     data_rv = yf.download(stock, start=start_date, end=end_date)["Close"]
-    if data_rv is None or not data_rv.empty:
+    if data_rv is not None or not data_rv.empty:
         short_vol = data_rv.pct_change().rolling(short_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
         long_vol = data_rv.pct_change().rolling(long_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
         
