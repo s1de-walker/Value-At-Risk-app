@@ -175,7 +175,8 @@ if hl_var_result:
     VaR_hl_value = hl_var_result.get("VaR", 0)  
 
     # ✅ Display the risk statement
-    st.write(f"**{100 - hl_var_percentile:.1f}% chance that :white[{stock_name}] might move a range of ${VaR_hl_value:.2f}**")
+    st.write(f"**{100 - hl_var_percentile:.1f}% chance that <span style='color:white'><b>{stock_name}</b></span> might move a range of ${VaR_hl_value:.2f}**", unsafe_allow_html=True)
+
 else:
     st.caption("") # High-Low VaR has not been calculated yet. Please run the calculation.
 
