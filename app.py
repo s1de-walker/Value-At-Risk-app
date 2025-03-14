@@ -33,9 +33,6 @@ if "histogram_fig" not in st.session_state:
 if "data" not in st.session_state:
     st.session_state.data = None
 
-if "hl_var_result" not in st.session_state:
-    st.session_state.hl_var_result = None
-
 # User Inputs
 stock = st.text_input("Enter Stock/ETF Symbol:", value="SPY")
 col1, col2 = st.columns(2)
@@ -105,24 +102,10 @@ if st.button("Calculate VaR"):
         else:
             st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance).")
 
-# Button to Run High-Low VaR Calculation
-if st.button("Calculate High-Low VaR"):
-    data_hl = yf.download(stock, start=start_date, end=end_date)
-    if not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
-        hl_returns = (data_hl["High"] - data_hl["Low"]) / data_hl["Low"]
-        hl_returns = hl_returns.rolling(analysis_period).sum().dropna()
-        mu_hl, sigma_hl = hl_returns.mean(), hl_returns.std()
-        simulated_hl_returns = np.random.normal(mu_hl, sigma_hl, simulations)
-        VaR_hl_value = np.percentile(simulated_hl_returns, 100 - var_percentile) * 100
-        CVaR_hl_value = simulated_hl_returns[simulated_hl_returns < (VaR_hl_value / 100)].mean() * 100
-        st.session_state.hl_var_result = {"VaR": VaR_hl_value, "CVaR": CVaR_hl_value, "Percentile": var_percentile}
-    else:
-        st.error("Error fetching high-low data. Please check the stock symbol.")
 
 # Display Results
 if st.session_state.var_result:
     st.write(f"**VaR ({st.session_state.var_result['Percentile']}%): {st.session_state.var_result['VaR']:.2f}%**")
     st.write(f"**Expected Shortfall (CVaR): {st.session_state.var_result['CVaR']:.2f}%**")
-if st.session_state.hl_var_result:
-    st.write(f"**High-Low VaR ({st.session_state.hl_var_result['Percentile']}%): {st.session_state.hl_var_result['VaR']:.2f}%**")
-    st.write(f"**High-Low Expected Shortfall (CVaR): {st.session_state.hl_var_result['CVaR']:.2f}%**")
+
+st.divider()
