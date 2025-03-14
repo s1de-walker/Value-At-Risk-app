@@ -127,10 +127,11 @@ if st.button("Calculate High-Low VaR"):
         previous_close = data_hl["Close"].iloc[-2]
         price_change = latest_close - previous_close
         
-        latest_price = data_hl["Close"].iloc[-1].item()  # Converts Series to scalar
-        price_change = (latest_price - data_hl["Close"].iloc[-2]).item()
+        latest_price = data_hl["Close"].iloc[-1].item()  
+        previous_price = data_hl["Close"].iloc[-2].item()
+        price_change_pct = ((latest_price - previous_price) / previous_price) * 100  
         
-        st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change:.2f}")
+        st.metric(label="Stock Price", value=f"${latest_price:.2f}", delta=f"{price_change_pct:.2f}%", delta_color="inverse")
     else:
         st.error("Error fetching high-low data. Please check the stock symbol.")
         
