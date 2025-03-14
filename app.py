@@ -39,12 +39,17 @@ st.sidebar.write("")
 st.sidebar.write("- **Monte Carlo Simulations:** More simulations improve accuracy but take longer to compute.")
 
 # **Initialize Session State**
+'''
 if "var_result" not in st.session_state:
     st.session_state.var_result = None
 if "histogram_fig" not in st.session_state:
     st.session_state.histogram_fig = None
 if "data" not in st.session_state:
     st.session_state.data = None
+'''
+for key in ["var_result", "histogram_fig", "data"]:
+    if key not in st.session_state:
+        st.session_state[key] = None
 
 
 st.write("")
