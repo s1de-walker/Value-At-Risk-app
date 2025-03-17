@@ -31,7 +31,7 @@ st.divider()
 #Main inputs--------------------------------------------------------------------------------------
 
 # Sidebar Instructions
-st.sidebar.write("This Value at Risk (VaR) Analysis App helps users assess potential losses in a stock or ETF over a selected period for informed decision-making.")
+st.sidebar.write("This Market Risk App helps users assess potential losses in a stock or ETF over a selected period for informed decision-making.")
 st.sidebar.header("📖   How to Use Inputs")
 st.sidebar.write("")
 st.sidebar.write("- **Analysis Period:** If your average holding period is 5 days, you may want to analyze how prices change over 5-day intervals.")
