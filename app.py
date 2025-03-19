@@ -27,7 +27,7 @@ with col2:
 date_range_days = (end_date - start_date).days  # Calculate total available days
 
 if date_range_days < 0:
-    st.error("End Date must be after Start Date.")
+    st.error("🚨 End Date cannot be earlier than Start Date. Please select a valid range.")
 
 st.divider()
 
