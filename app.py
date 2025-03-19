@@ -213,10 +213,18 @@ st.subheader("Is it getting riskier?")
 st.caption("Select rolling windows for short-term and long-term volatility.")
 
 col1, col2 = st.columns(2)
-with col1:
-    short_vol_window = st.number_input("Short-Term Window (Days):", min_value=1, max_value=date_range_days, value=10)
-with col2:
-    long_vol_window = st.number_input("Long-Term Window (Days):", min_value=1, max_value=date_range_days, value=50)
+# Check if the date difference is negative
+if date_difference < 0:
+    st.error("End Date must be after Start Date.")
+else:
+    # Proceed with your number input
+    with col1:
+        short_vol_window = st.number_input("Short-Term Window (Days):", min_value=1, max_value=date_range_days, value=10)
+    with col2:
+        long_vol_window = st.number_input("Long-Term Window (Days):", min_value=1, max_value=date_range_days, value=50)
+
+
+
 
 st.write("")
 
