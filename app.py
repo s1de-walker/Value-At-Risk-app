@@ -214,7 +214,7 @@ st.caption("Select rolling windows for short-term and long-term volatility.")
 
 col1, col2 = st.columns(2)
 # Check if the date difference is negative
-if date_difference < 0:
+if date_range_days < 0:
     st.error("End Date must be after Start Date.")
 else:
     # Proceed with your number input
