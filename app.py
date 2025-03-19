@@ -222,28 +222,40 @@ st.write("")
 
 # Button to Calculate Rolling Volatility
 if st.button("Calculate Rolling Volatility"):
-    data_rv = yf.download(stock, start=start_date, end=end_date)["Close"]
-    if data_rv is not None or not data_rv.empty:
-        short_vol = data_rv.pct_change().rolling(short_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
-        long_vol = data_rv.pct_change().rolling(long_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
-        
-        # Ensure both are Series with the same index
-        short_vol = short_vol.loc[short_vol.index.intersection(long_vol.index)]
-        long_vol = long_vol.loc[long_vol.index.intersection(short_vol.index)]
+    error_flag = False  # Error flag for validation
 
-        # Create a DataFrame
-        vol_df = pd.DataFrame({
-            "Date": short_vol.index,
-            "Short Vol": short_vol.values,  # Ensure 1D
-            "Long Vol": long_vol.values     # Ensure 1D
-        }).dropna()
+    if end_date < start_date:
+        st.error("🚨 End Date cannot be earlier than Start Date. Please select a valid range.")
+        error_flag = True
 
-        # Store in session state
-        st.session_state.data_rv = vol_df
-        st.session_state.rv_stock_name = stock  # Store stock name after button click
+    if start_date > datetime.today().date() or end_date > datetime.today().date():
+        st.error("🚨 Dates cannot be in the future. Please select a valid range.")
+        error_flag = True
 
-    else:
-        st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance). Use .NS after ticker for NSE stocks")
+    # Run only if there are no errors
+    if not error_flag:
+        data_rv = yf.download(stock, start=start_date, end=end_date)["Close"]
+        if data_rv is not None or not data_rv.empty:
+            short_vol = data_rv.pct_change().rolling(short_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
+            long_vol = data_rv.pct_change().rolling(long_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
+            
+            # Ensure both are Series with the same index
+            short_vol = short_vol.loc[short_vol.index.intersection(long_vol.index)]
+            long_vol = long_vol.loc[long_vol.index.intersection(short_vol.index)]
+    
+            # Create a DataFrame
+            vol_df = pd.DataFrame({
+                "Date": short_vol.index,
+                "Short Vol": short_vol.values,  # Ensure 1D
+                "Long Vol": long_vol.values     # Ensure 1D
+            }).dropna()
+    
+            # Store in session state
+            st.session_state.data_rv = vol_df
+            st.session_state.rv_stock_name = stock  # Store stock name after button click
+    
+        else:
+            st.error("🚨 Error fetching data. Please check the stock symbol (as per yfinance). Use .NS after ticker for NSE stocks")
 
 # Display Rolling Volatility Trend
 if "data_rv" in st.session_state:
