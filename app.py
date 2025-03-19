@@ -26,6 +26,9 @@ with col2:
 
 date_range_days = (end_date - start_date).days  # Calculate total available days
 
+if date_range_days < 0:
+    st.error("End Date must be after Start Date.")
+
 st.divider()
 
 #Main inputs--------------------------------------------------------------------------------------
@@ -215,7 +218,7 @@ st.caption("Select rolling windows for short-term and long-term volatility.")
 col1, col2 = st.columns(2)
 # Check if the date difference is negative
 if date_range_days < 0:
-    st.error("End Date must be after Start Date.")
+    st.write("")
 else:
     # Proceed with your number input
     with col1:
