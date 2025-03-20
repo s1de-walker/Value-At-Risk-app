@@ -77,23 +77,23 @@ with col3:
 
 st.write("")
 
-# Button to Run Calculation
-if st.button("Calculate VaR"):
-    # **Validation Checks**
-    error_flag = False  
-    
+#Validation of dates used repeatedly
+def validate_dates(start_date, end_date):
+    """Validate start and end dates. Returns True if valid, else False."""
     if end_date < start_date:
         st.error("🚨 End Date cannot be earlier than Start Date. Please select a valid range.")
-        error_flag = True
+        return False
     
     if start_date > datetime.today().date() or end_date > datetime.today().date():
         st.error("🚨 Dates cannot be in the future. Please select a valid range.")
-        error_flag = True
+        return False
+    
+    return True  # No need for else!
 
-    
-    
-    # **Run only if there are no errors**
-    if not error_flag:
+# Button to Run Calculation
+if st.button("Calculate VaR"):
+    if validate_dates(start_date, end_date): 
+        
         # Fetch Data
         data = yf.download(stock, start=start_date, end=end_date)["Close"]
 
@@ -160,18 +160,8 @@ st.write("")
 
 # Button to Run High-Low VaR Calculation
 if st.button("Calculate High-Low VaR"):
-    error_flag = False  # Error flag for validation
-
-    if end_date < start_date:
-        st.error("🚨 End Date cannot be earlier than Start Date. Please select a valid range.")
-        error_flag = True
-
-    if start_date > datetime.today().date() or end_date > datetime.today().date():
-        st.error("🚨 Dates cannot be in the future. Please select a valid range.")
-        error_flag = True
-
-    # Run only if there are no errors
-    if not error_flag:
+    if validate_dates(start_date, end_date): 
+        
         data_hl = yf.download(stock, start=start_date, end=end_date)
 
         if data_hl is not None and not data_hl.empty and "High" in data_hl.columns and "Low" in data_hl.columns:
@@ -233,18 +223,8 @@ st.write("")
 
 # Button to Calculate Rolling Volatility
 if st.button("Calculate Rolling Volatility"):
-    error_flag = False  # Error flag for validation
+    if validate_dates(start_date, end_date): 
 
-    if end_date < start_date:
-        st.error("🚨 End Date cannot be earlier than Start Date. Please select a valid range.")
-        error_flag = True
-
-    if start_date > datetime.today().date() or end_date > datetime.today().date():
-        st.error("🚨 Dates cannot be in the future. Please select a valid range.")
-        error_flag = True
-
-    # Run only if there are no errors
-    if not error_flag:
         data_rv = yf.download(stock, start=start_date, end=end_date)["Close"]
         if data_rv is not None or not data_rv.empty:
             short_vol = data_rv.pct_change().rolling(short_vol_window).std().dropna().squeeze() * np.sqrt(250) * 100
