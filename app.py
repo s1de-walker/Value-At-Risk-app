@@ -95,7 +95,7 @@ def validate_dates(start_date, end_date):
 if st.button("Calculate VaR"):
     if validate_dates(start_date, end_date):
 
-        if stock is None:
+        if stock.empty:
             st.stop()
         else:
             # Fetch Data
