@@ -28,6 +28,7 @@ date_range_days = (end_date - start_date).days  # Calculate total available days
 
 if date_range_days < 0:
     st.error("🚨 End Date cannot be earlier than Start Date. Please select a valid range.")
+    st.stop()
 
 st.divider()
 
@@ -92,7 +93,10 @@ def validate_dates(start_date, end_date):
 
 # Button to Run Calculation
 if st.button("Calculate VaR"):
-    if validate_dates(start_date, end_date): 
+    if validate_dates(start_date, end_date):
+
+        if stock is None:
+            st.stop()
         
         # Fetch Data
         data = yf.download(stock, start=start_date, end=end_date)["Close"]
