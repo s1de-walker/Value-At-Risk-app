@@ -91,6 +91,10 @@ def validate_dates(start_date, end_date):
     
     return True  # No need for else!
 
+if not stock:
+    st.stop()
+
+
 # Button to Run Calculation
 if st.button("Calculate VaR"):
     if validate_dates(start_date, end_date):
