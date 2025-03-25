@@ -45,6 +45,8 @@ st.sidebar.write("")
 st.sidebar.write("- **Monte Carlo Simulations:** More simulations improve accuracy but take longer to compute.")
 
 # Sidebar instructions-----------------------------------------------------------------------------
+if not stock:
+    st.stop()
 
 # I. SECTION: VAR
 # ===============
@@ -91,8 +93,7 @@ def validate_dates(start_date, end_date):
     
     return True  # No need for else!
 
-if not stock:
-    st.stop()
+
 
 
 # Button to Run Calculation
